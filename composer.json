@@ -1,0 +1,29 @@
+{
+    "name": "catlane/laravel-scout-elasticsearch",
+    "keywords": ["laravel", "scout", "elasticsearch"],
+    "description": "Elasticsearch Driver for Laravel Scout",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "catlane",
+            "email": "catlane@foxmail.com"
+        }
+    ],
+    "require": {
+        "laravel/scout": "^7.1",
+        "elasticsearch/elasticsearch": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Catlane\\LaravelScoutElasticsearch\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Catlane\\LaravelScoutElasticsearch\\ElasticsearchServiceProvider"
+            ]
+        }
+    }
+}

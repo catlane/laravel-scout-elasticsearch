@@ -113,7 +113,7 @@ class ElasticsearchEngine extends Engine
             'size' => $perPage,
         ]);
 
-       $result['nbPages'] = $result['hits']['total']/$perPage;
+        $result['nbPages'] = $result['hits']['total']/$perPage;
 
         return $result;
     }
@@ -131,19 +131,16 @@ class ElasticsearchEngine extends Engine
         $filter = config('scout.elasticsearch.filter');
         $query = str_replace($filter, '', $builder->query);
         $index = config('scout.elasticsearch.prefix').$type;
+
         $params = [
             'index' => $index,
             'type' => $type,
             'body' => [
                 'query' => [
-                    'bool' => [
-                        'must' => [
-                            [
-                                'query_string' => [
-                                    'query' => $query
-                                ]
-                            ]
-                        ]
+                    'multi_match' => [
+                        'query' => $query ,
+                        'fields' => [ "title" , "keywords" ] ,
+                        "operator"=>"and"
                     ]
                 ]
             ]
@@ -161,11 +158,13 @@ class ElasticsearchEngine extends Engine
             $params['body']['size'] = $options['size'];
         }
 
-        if (isset($options['numericFilters']) && count($options['numericFilters'])) {
-            $params['body']['query']['bool']['must'] = array_merge($params['body']['query']['bool']['must'],
-                $options['numericFilters']);
-        }
+//        if (isset($options['numericFilters']) && count($options['numericFilters'])) {
+//            $params['body']['query']['bool']['must'] = array_merge($params['body']['query']['bool']['must'],
+//                $options['numericFilters']);
+//        }
 
+
+//        p ( $params );die;
         if ($builder->callback) {
             return call_user_func(
                 $builder->callback,
@@ -176,6 +175,7 @@ class ElasticsearchEngine extends Engine
         }
 
         $result = $this->elastic->search($params);
+
 
         if (is_array($result['hits']['total'])) {
             $result['hits']['total'] = $result['hits']['total']['value'];
@@ -227,7 +227,7 @@ class ElasticsearchEngine extends Engine
         }
 
         $keys = collect($results['hits']['hits'])
-                        ->pluck('_id')->values()->all();
+            ->pluck('_id')->values()->all();
 
         $models = $model->whereIn(
             $model->getKeyName(), $keys
